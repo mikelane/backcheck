@@ -6,9 +6,11 @@ import ReactFlow, {
   Controls,
   type Edge,
   type Node,
+  type NodeProps,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { Building2, Home, User, Briefcase, MapPin } from 'lucide-react';
+import { useMemo } from 'react';
+import NameShuffle from './NameShuffle';
 import type { Entity, OwnershipEdge } from '@/lib/types';
 
 const X_POSITIONS: Record<string, number> = {
@@ -19,49 +21,64 @@ const X_POSITIONS: Record<string, number> = {
   registered_agent: 900,
 };
 
-const NODE_STYLES: Record<string, { border: string; bg: string; icon: React.ReactNode }> = {
-  property: {
-    border: '#3b82f6',
-    bg: 'rgba(59,130,246,0.12)',
-    icon: <Home size={14} />,
-  },
-  llc: {
-    border: '#a855f7',
-    bg: 'rgba(168,85,247,0.12)',
-    icon: <Building2 size={14} />,
-  },
-  human: {
-    border: '#f97316',
-    bg: 'rgba(249,115,22,0.12)',
-    icon: <User size={14} />,
-  },
-  registered_agent: {
-    border: '#6b7280',
-    bg: 'rgba(107,114,128,0.12)',
-    icon: <Briefcase size={14} />,
-  },
-  mailing_address: {
-    border: '#06b6d4',
-    bg: 'rgba(6,182,212,0.12)',
-    icon: <MapPin size={14} />,
-  },
+const NODE_ACCENT: Record<string, { border: string; text: string; label: string }> = {
+  property: { border: 'border-l-blue-500', text: 'text-blue-500', label: 'PROPERTY' },
+  llc: { border: 'border-l-purple-500', text: 'text-purple-500', label: 'LLC' },
+  human: { border: 'border-l-orange-500', text: 'text-orange-500', label: 'INDIVIDUAL' },
+  registered_agent: { border: 'border-l-zinc-500', text: 'text-zinc-500', label: 'REG. AGENT' },
+  mailing_address: { border: 'border-l-cyan-500', text: 'text-cyan-500', label: 'MAILING ADDR' },
 };
 
-function buildNodes(entities: Entity[]): Node[] {
-  // Group entities by type to assign y positions within each column
+interface NodeData {
+  label: string;
+  entity: Entity;
+  subline?: string;
+}
+
+function DossierNode({ data }: NodeProps<NodeData>) {
+  const accent = NODE_ACCENT[data.entity.type] ?? NODE_ACCENT.llc;
+  const isHuman = data.entity.type === 'human';
+  const isHighRisk = isHuman && (data.entity.cross_property_count ?? 0) >= 5;
+  const shortId = data.entity.id.slice(0, 6).toUpperCase();
+
+  return (
+    <div
+      className={`min-w-[180px] bg-zinc-900 border border-zinc-800 node-reveal ${
+        isHighRisk ? 'ring-1 ring-orange-500/30 human-node-glow' : ''
+      }`}
+    >
+      <div className={`border-l-2 ${accent.border} px-3 py-2`}>
+        <div className="flex items-baseline gap-2">
+          <span className={`font-mono text-[9px] tracking-[0.22em] uppercase ${accent.text}`}>
+            {accent.label}
+          </span>
+          <span className="font-mono text-[9px] text-zinc-600 ml-auto">{shortId}</span>
+        </div>
+        <div className="font-display text-sm text-zinc-100 leading-tight mt-1 tracking-tight">
+          <NameShuffle name={data.label} />
+        </div>
+        {data.subline && (
+          <div className="font-mono text-[10px] text-zinc-500 mt-1 uppercase tracking-wide">
+            {data.subline}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+const NODE_TYPES = { dossier: DossierNode };
+
+function buildNodes(entities: Entity[]): Node<NodeData>[] {
   const byType: Record<string, Entity[]> = {};
   for (const e of entities) {
     (byType[e.type] ??= []).push(e);
   }
 
   const hasMhub = (byType['mailing_address'] ?? []).length > 0;
-
-  // When a mailing_address hub is present, sibling LLCs fan vertically around it.
-  // The primary LLC (index 0) sits at center; siblings fan out below it.
   const llcs = byType['llc'] ?? [];
 
   return entities.map((entity) => {
-    const style = NODE_STYLES[entity.type] ?? NODE_STYLES.llc;
     const sameType = byType[entity.type] ?? [];
     const idx = sameType.indexOf(entity);
     const total = sameType.length;
@@ -70,7 +87,6 @@ function buildNodes(entities: Entity[]): Node[] {
     let y = (idx - (total - 1) / 2) * 110 + 200;
 
     if (entity.type === 'llc' && hasMhub) {
-      // All LLCs at same x; fan vertically with 100px spacing
       x = 300;
       y = (idx - (llcs.length - 1) / 2) * 100 + 200;
     } else if (entity.type === 'llc' && llcs.length > 2) {
@@ -78,39 +94,23 @@ function buildNodes(entities: Entity[]): Node[] {
     }
 
     if (entity.type === 'mailing_address') {
-      // Center the hub vertically in the LLC fan
       y = 200;
     }
 
     if (entity.type === 'human') {
-      // Humans go furthest right
       x = hasMhub ? 950 : 900;
     }
 
-    const isHighRisk =
-      entity.type === 'human' && (entity.cross_property_count ?? 0) >= 5;
+    const subline =
+      entity.cross_property_count !== undefined && entity.cross_property_count >= 2
+        ? `OWNS · ${entity.cross_property_count} PROPS`
+        : undefined;
 
     return {
       id: entity.id,
+      type: 'dossier',
       position: { x, y },
-      data: { label: entity.name, entity },
-      style: {
-        background: style.bg,
-        border: `1.5px solid ${style.border}`,
-        borderRadius: '12px',
-        padding: '10px 14px',
-        color: '#f4f4f5',
-        fontSize: '12px',
-        fontFamily: 'ui-monospace, monospace',
-        fontWeight: 600,
-        minWidth: '180px',
-        maxWidth: '220px',
-        boxShadow: isHighRisk
-          ? '0 0 18px 4px rgba(249,115,22,0.35)'
-          : undefined,
-        animation: 'node-reveal 0.5s ease-out forwards',
-      },
-      className: isHighRisk ? 'human-node-glow' : '',
+      data: { label: entity.name, entity, subline },
     };
   });
 }
@@ -122,15 +122,15 @@ function buildEdges(edges: OwnershipEdge[]): Edge[] {
     target: e.to,
     label: e.relationship,
     animated: true,
-    style: { stroke: '#52525b', strokeWidth: 2 },
+    style: { stroke: '#3f3f46', strokeWidth: 1.5, strokeDasharray: '4 4' },
     labelStyle: {
       fill: '#71717a',
       fontSize: 10,
-      fontFamily: 'ui-monospace, monospace',
+      fontFamily: 'var(--font-mono, ui-monospace, monospace)',
     },
     labelBgStyle: { fill: '#09090b', fillOpacity: 0.9 },
     labelBgPadding: [4, 6] as [number, number],
-    labelBgBorderRadius: 4,
+    labelBgBorderRadius: 2,
   }));
 }
 
@@ -140,14 +140,15 @@ interface OwnershipGraphProps {
 }
 
 export default function OwnershipGraph({ entities, edges }: OwnershipGraphProps) {
-  const nodes = buildNodes(entities);
-  const rfEdges = buildEdges(edges);
+  const nodes = useMemo(() => buildNodes(entities), [entities]);
+  const rfEdges = useMemo(() => buildEdges(edges), [edges]);
 
   return (
-    <div className="w-full h-[420px] rounded-xl overflow-hidden border border-zinc-800">
+    <div className="w-full h-[420px] overflow-hidden border border-zinc-800">
       <ReactFlow
         nodes={nodes}
         edges={rfEdges}
+        nodeTypes={NODE_TYPES}
         fitView
         fitViewOptions={{ padding: 0.25 }}
         nodesDraggable={false}
@@ -155,7 +156,7 @@ export default function OwnershipGraph({ entities, edges }: OwnershipGraphProps)
         elementsSelectable={false}
         proOptions={{ hideAttribution: true }}
       >
-        <Background variant={BackgroundVariant.Dots} color="#27272a" gap={18} />
+        <Background variant={BackgroundVariant.Dots} gap={28} size={1} color="#27272a" />
         <Controls showInteractive={false} />
       </ReactFlow>
     </div>

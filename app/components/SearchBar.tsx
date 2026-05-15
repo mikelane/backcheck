@@ -24,34 +24,25 @@ export default function SearchBar({ onSubmit, defaultValue = '' }: SearchBarProp
   }
 
   return (
-    <div className="relative flex items-center w-full max-w-2xl mx-auto">
-      <Search className="absolute left-4 text-zinc-400 pointer-events-none" size={20} />
+    <div className="relative w-full max-w-2xl mx-auto border-b-2 border-zinc-800 focus-within:border-orange-500/60 transition-colors">
+      <Search
+        className="absolute left-0 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none"
+        size={18}
+      />
       <input
         type="text"
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="Try: 1500 SW 5th Ave, Portland, OR"
-        className="
-          w-full h-14 pl-12 pr-36 text-lg
-          bg-zinc-900 border border-zinc-700
-          rounded-2xl text-zinc-100 placeholder-zinc-500
-          focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500/60
-          transition-all duration-200
-        "
+        placeholder="TRY: 4150 N WILLIAMS AVE"
+        className="w-full bg-transparent pl-8 pr-36 py-5 font-mono text-lg text-zinc-100 placeholder:text-zinc-600 focus:outline-none uppercase tracking-wide"
       />
       <button
         onClick={handleSubmit}
         disabled={!value.trim()}
-        className="
-          absolute right-2 h-10 px-5
-          bg-orange-500 hover:bg-orange-400
-          disabled:bg-zinc-700 disabled:text-zinc-500 disabled:cursor-not-allowed
-          text-white font-semibold text-sm rounded-xl
-          transition-colors duration-150
-        "
+        className="absolute right-2 top-1/2 -translate-y-1/2 font-mono text-[11px] tracking-[0.22em] uppercase px-4 py-2 bg-zinc-100 text-zinc-900 hover:bg-orange-500 hover:text-zinc-950 disabled:bg-zinc-700 disabled:text-zinc-500 disabled:cursor-not-allowed transition-colors"
       >
-        Look up →
+        RUN INQUIRY ↳
       </button>
     </div>
   );

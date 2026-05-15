@@ -1,38 +1,32 @@
 'use client';
 
-import { Building2, Home, User, Briefcase, MapPin } from 'lucide-react';
 import type { Entity } from '@/lib/types';
 
 const ENTITY_CONFIG = {
   property: {
-    icon: Home,
-    accent: 'border-blue-500/40 bg-blue-500/5',
-    chip: 'bg-blue-500/20 text-blue-300',
-    label: 'Property',
+    label: 'PROPERTY',
+    accentBorder: 'border-l-blue-500',
+    accentText: 'text-blue-500',
   },
   llc: {
-    icon: Building2,
-    accent: 'border-purple-500/40 bg-purple-500/5',
-    chip: 'bg-purple-500/20 text-purple-300',
-    label: 'LLC / Entity',
+    label: 'LLC / ENTITY',
+    accentBorder: 'border-l-purple-500',
+    accentText: 'text-purple-500',
   },
   human: {
-    icon: User,
-    accent: 'border-orange-500/40 bg-orange-500/5 shadow-orange-500/20 shadow-lg',
-    chip: 'bg-orange-500/20 text-orange-300',
-    label: 'Individual',
+    label: 'INDIVIDUAL',
+    accentBorder: 'border-l-orange-500',
+    accentText: 'text-orange-500',
   },
   registered_agent: {
-    icon: Briefcase,
-    accent: 'border-zinc-500/40 bg-zinc-800/40',
-    chip: 'bg-zinc-700/60 text-zinc-400',
-    label: 'Registered Agent',
+    label: 'REGISTERED AGENT',
+    accentBorder: 'border-l-zinc-500',
+    accentText: 'text-zinc-500',
   },
   mailing_address: {
-    icon: MapPin,
-    accent: 'border-cyan-500/40 bg-cyan-500/5',
-    chip: 'bg-cyan-500/20 text-cyan-300',
-    label: 'Mailing Address',
+    label: 'MAILING ADDRESS',
+    accentBorder: 'border-l-cyan-500',
+    accentText: 'text-cyan-500',
   },
 };
 
@@ -44,41 +38,39 @@ interface EntityCardProps {
 
 export default function EntityCard({ entity }: EntityCardProps) {
   const config = ENTITY_CONFIG[entity.type as keyof typeof ENTITY_CONFIG] ?? FALLBACK_CONFIG;
-  const Icon = config.icon;
+  const isHuman = entity.type === 'human';
+  const shortId = entity.id.slice(0, 8).toUpperCase();
 
   return (
     <div
-      className={`
-        border rounded-xl p-4
-        transition-transform duration-150 hover:-translate-y-0.5
-        ${config.accent}
-      `}
+      className={`relative bg-zinc-900/40 border border-zinc-800 hover:border-zinc-600 p-4 transition-colors border-l-2 ${config.accentBorder}`}
     >
-      <div className="flex items-start gap-3">
-        <div className="flex-shrink-0 mt-0.5">
-          <Icon size={16} className="text-zinc-400" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-mono text-sm font-semibold text-zinc-100 truncate">
-              {entity.name}
-            </span>
-            <span className={`text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0 ${config.chip}`}>
-              {config.label}
-            </span>
-            {entity.cross_property_count !== undefined && entity.cross_property_count >= 2 && (
-              <span className="text-xs px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 font-medium flex-shrink-0">
-                {entity.cross_property_count} properties
-              </span>
-            )}
-          </div>
-          {entity.confidence !== undefined && (
-            <p className="text-xs text-zinc-600 mt-1">
-              {Math.round(entity.confidence * 100)}% confidence
-            </p>
-          )}
-        </div>
+      {/* Top row: type label + entity ID */}
+      <div className="flex items-baseline justify-between gap-2">
+        <span className={`font-mono text-[10px] tracking-[0.22em] uppercase ${config.accentText}`}>
+          {config.label}
+        </span>
+        <span className="font-mono text-[10px] text-zinc-600">{shortId}</span>
       </div>
+
+      {/* Entity name */}
+      <p className="font-display text-lg text-zinc-100 break-words leading-snug mt-2">
+        {entity.name}
+      </p>
+
+      {/* Metadata strip */}
+      {entity.cross_property_count !== undefined && entity.cross_property_count >= 2 && (
+        <p className="font-mono text-[11px] text-zinc-500 mt-2 uppercase tracking-wide">
+          OWNS · {entity.cross_property_count} PROPERTIES
+        </p>
+      )}
+
+      {/* Surfaced badge for humans */}
+      {isHuman && (
+        <span className={`inline-block mt-2 font-mono text-[10px] tracking-[0.18em] uppercase ${config.accentText}`}>
+          ⚑ SURFACED
+        </span>
+      )}
     </div>
   );
 }
