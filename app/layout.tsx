@@ -28,7 +28,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="bg-zinc-950 text-zinc-100 antialiased font-sans overflow-x-hidden">
+      <body className="bg-zinc-950 text-zinc-100 antialiased font-sans overflow-x-hidden" suppressHydrationWarning>
         <main className="overflow-x-hidden w-full max-w-full">{children}</main>
       </body>
     </html>
