@@ -9,7 +9,7 @@ import ReactFlow, {
   type NodeProps,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import gsap from 'gsap';
 import NameShuffle from './NameShuffle';
 import type { Entity, OwnershipEdge } from '@/lib/types';
@@ -43,7 +43,7 @@ function DossierNode({ data }: NodeProps<NodeData>) {
 
   return (
     <div
-      className={`min-w-[180px] bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden ${
+      className={`dossier-node-inner min-w-[180px] bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden ${
         isHighRisk ? 'ring-1 ring-orange-500/30 human-node-glow' : ''
       }`}
     >
@@ -135,22 +135,38 @@ interface OwnershipGraphProps {
 export default function OwnershipGraph({ entities, edges }: OwnershipGraphProps) {
   const nodes = useMemo(() => buildNodes(entities), [entities]);
   const rfEdges = useMemo(() => buildEdges(edges), [edges]);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    gsap.fromTo(
-      '.react-flow__node',
-      { opacity: 0, scale: 0.85 },
-      { opacity: 1, scale: 1, duration: 0.5, stagger: 0.08, ease: 'power3.out' }
-    );
-    gsap.fromTo(
-      '.react-flow__edge',
-      { opacity: 0 },
-      { opacity: 1, duration: 0.4, delay: 0.6, stagger: 0.04, ease: 'power2.out' }
-    );
+    if (!containerRef.current) return;
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        '.react-flow__node',
+        { opacity: 0 },
+        { opacity: 1, duration: 0.4, stagger: 0.06, ease: 'power2.out' }
+      );
+      gsap.fromTo(
+        '.dossier-node-inner',
+        { scale: 0.85 },
+        {
+          scale: 1,
+          duration: 0.5,
+          stagger: 0.06,
+          ease: 'power3.out',
+          clearProps: 'transform',
+        }
+      );
+      gsap.fromTo(
+        '.react-flow__edge',
+        { opacity: 0 },
+        { opacity: 1, duration: 0.4, delay: 0.5, stagger: 0.04, ease: 'power2.out' }
+      );
+    }, containerRef);
+    return () => ctx.revert();
   }, [nodes]);
 
   return (
-    <div className="w-full h-[420px] overflow-hidden border border-zinc-900 rounded-xl bg-zinc-950/50">
+    <div ref={containerRef} className="w-full h-[420px] overflow-hidden border border-zinc-900 rounded-xl bg-zinc-950/50">
       <ReactFlow
         nodes={nodes}
         edges={rfEdges}
