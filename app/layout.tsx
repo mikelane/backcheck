@@ -7,6 +7,7 @@ const geistMono = Geist_Mono({
   display: 'swap',
   variable: '--font-geist-mono',
   adjustFontFallback: false,
+  preload: false,
 });
 
 export const metadata: Metadata = {

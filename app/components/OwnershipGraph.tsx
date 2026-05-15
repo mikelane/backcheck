@@ -4,6 +4,8 @@ import ReactFlow, {
   Background,
   BackgroundVariant,
   Controls,
+  Handle,
+  Position,
   type Edge,
   type Node,
   type NodeProps,
@@ -47,6 +49,16 @@ function DossierNode({ data }: NodeProps<NodeData>) {
         isHighRisk ? 'ring-1 ring-orange-500/30 human-node-glow' : ''
       }`}
     >
+      <Handle
+        type="target"
+        position={Position.Left}
+        className="!w-2 !h-2 !bg-zinc-700 !border-0"
+      />
+      <Handle
+        type="source"
+        position={Position.Right}
+        className="!w-2 !h-2 !bg-zinc-700 !border-0"
+      />
       <div className={`border-l-2 ${accent.border} px-4 py-3`}>
         <p className={`text-[10px] font-medium ${accent.text} mb-1`}>{accent.label}</p>
         <div className="font-sans text-sm text-zinc-100 leading-tight tracking-tight">
