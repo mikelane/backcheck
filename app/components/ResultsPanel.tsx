@@ -11,22 +11,29 @@ interface ResultsPanelProps {
   result: LookupResult;
 }
 
+// The API injects these extra fields from resolveOwnership for banner logic
+interface EnrichedResult extends LookupResult {
+  _distinctLlcsAtMailing?: number;
+  _totalPropertiesInResult?: number;
+}
+
 export default function ResultsPanel({ result }: ResultsPanelProps) {
   if (!result.matched) {
     return (
       <div className="text-center py-16 px-4 animate-fade-in">
         <p className="text-zinc-400 text-lg mb-2">No ownership records found.</p>
         <p className="text-zinc-600 text-sm">
-          We couldn&apos;t find ownership records for that address. Try one of the demo
-          addresses to see the tool in action.
+          {result.message ??
+            "We couldn't find ownership records for that address. Try one of the demo addresses to see the tool in action."}
         </p>
       </div>
     );
   }
 
-  const topHuman = result.entities.find(
-    (e) => e.type === 'human' && (e.cross_property_count ?? 0) >= 5
-  );
+  const enriched = result as EnrichedResult;
+  const distinctLlcsAtMailing = enriched._distinctLlcsAtMailing ?? 0;
+  const totalPropertiesInResult = enriched._totalPropertiesInResult ?? 0;
+  const showAlarmBanner = distinctLlcsAtMailing >= 3;
 
   const queriedAt = new Date(result.queried_at).toLocaleTimeString('en-US', {
     hour: '2-digit',
@@ -36,22 +43,19 @@ export default function ResultsPanel({ result }: ResultsPanelProps) {
 
   return (
     <div className="w-full animate-reveal space-y-5">
-      {/* High-risk banner */}
-      {topHuman && (
+      {/* High-risk alarm banner */}
+      {showAlarmBanner && (
         <div className="rounded-xl bg-gradient-to-r from-orange-500/20 via-red-500/15 to-orange-500/20 border border-orange-500/30 px-5 py-4">
           <p className="text-sm font-semibold text-orange-200">
-            ⚠ This person appears on{' '}
+            ⚠ This property is owned by an LLC that shares a mailing address with{' '}
             <span className="text-orange-100 font-bold">
-              {(topHuman.metadata?.llcs_as_agent as number | undefined) ??
-                topHuman.cross_property_count}{' '}
-              LLCs
-            </span>{' '}
-            and{' '}
-            <span className="text-orange-100 font-bold">
-              {topHuman.cross_property_count} Portland properties
+              {distinctLlcsAtMailing - 1} other LLCs and entities
             </span>
-            .{' '}
-            <span className="font-mono">{topHuman.name}</span>
+            , collectively holding{' '}
+            <span className="text-orange-100 font-bold">
+              {totalPropertiesInResult} properties
+            </span>{' '}
+            in Multnomah County.
           </p>
         </div>
       )}

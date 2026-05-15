@@ -4,7 +4,7 @@ import { useState } from 'react';
 import SearchBar from './components/SearchBar';
 import LoadingSequence from './components/LoadingSequence';
 import ResultsPanel from './components/ResultsPanel';
-import { DEMO_ADDRESSES } from '@/lib/fixtures';
+import { DEMO_ADDRESSES } from '@/lib/resolve';
 import type { LookupResult } from '@/lib/types';
 
 type LookupState = 'idle' | 'loading' | 'done' | 'error';
@@ -71,13 +71,14 @@ export default function Home() {
               key={demo.full}
               onClick={() => runLookup(demo.full)}
               className="
-                px-3 py-1.5 rounded-lg text-xs font-medium
+                px-3 py-2 rounded-lg text-left
                 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 hover:border-zinc-500
                 text-zinc-300 hover:text-zinc-100
                 transition-colors duration-150
               "
             >
-              {demo.label}
+              <span className="block text-xs font-medium">{demo.label}</span>
+              <span className="block text-xs text-zinc-500 mt-0.5">{demo.subtitle}</span>
             </button>
           ))}
         </div>

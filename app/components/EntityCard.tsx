@@ -1,6 +1,6 @@
 'use client';
 
-import { Building2, Home, User, Briefcase } from 'lucide-react';
+import { Building2, Home, User, Briefcase, MapPin } from 'lucide-react';
 import type { Entity } from '@/lib/types';
 
 const ENTITY_CONFIG = {
@@ -28,14 +28,22 @@ const ENTITY_CONFIG = {
     chip: 'bg-zinc-700/60 text-zinc-400',
     label: 'Registered Agent',
   },
-} as const;
+  mailing_address: {
+    icon: MapPin,
+    accent: 'border-cyan-500/40 bg-cyan-500/5',
+    chip: 'bg-cyan-500/20 text-cyan-300',
+    label: 'Mailing Address',
+  },
+};
+
+const FALLBACK_CONFIG = ENTITY_CONFIG.llc;
 
 interface EntityCardProps {
   entity: Entity;
 }
 
 export default function EntityCard({ entity }: EntityCardProps) {
-  const config = ENTITY_CONFIG[entity.type];
+  const config = ENTITY_CONFIG[entity.type as keyof typeof ENTITY_CONFIG] ?? FALLBACK_CONFIG;
   const Icon = config.icon;
 
   return (

@@ -10,8 +10,8 @@ const STAGES = [
     delay: 1000,
   },
   {
-    label: 'Searching Oregon SOS Business Registry',
-    subtitle: 'sos.oregon.gov / business',
+    label: 'Cross-referencing mailing addresses',
+    subtitle: 'multco open data / parcels',
     delay: 2000,
   },
   {

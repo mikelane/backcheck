@@ -8,12 +8,13 @@ import ReactFlow, {
   type Node,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { Building2, Home, User, Briefcase } from 'lucide-react';
+import { Building2, Home, User, Briefcase, MapPin } from 'lucide-react';
 import type { Entity, OwnershipEdge } from '@/lib/types';
 
 const X_POSITIONS: Record<string, number> = {
   property: 0,
   llc: 300,
+  mailing_address: 620,
   human: 900,
   registered_agent: 900,
 };
@@ -39,6 +40,11 @@ const NODE_STYLES: Record<string, { border: string; bg: string; icon: React.Reac
     bg: 'rgba(107,114,128,0.12)',
     icon: <Briefcase size={14} />,
   },
+  mailing_address: {
+    border: '#06b6d4',
+    bg: 'rgba(6,182,212,0.12)',
+    icon: <MapPin size={14} />,
+  },
 };
 
 function buildNodes(entities: Entity[]): Node[] {
@@ -48,20 +54,37 @@ function buildNodes(entities: Entity[]): Node[] {
     (byType[e.type] ??= []).push(e);
   }
 
-  // LLC column: spread intermediate LLCs vertically, with extra x spacing for deep chains
+  const hasMhub = (byType['mailing_address'] ?? []).length > 0;
+
+  // When a mailing_address hub is present, sibling LLCs fan vertically around it.
+  // The primary LLC (index 0) sits at center; siblings fan out below it.
   const llcs = byType['llc'] ?? [];
-  const llcXStep = llcs.length > 2 ? 280 : 300;
 
   return entities.map((entity) => {
     const style = NODE_STYLES[entity.type] ?? NODE_STYLES.llc;
     const sameType = byType[entity.type] ?? [];
     const idx = sameType.indexOf(entity);
     const total = sameType.length;
-    const yBase = (idx - (total - 1) / 2) * 110 + 200;
 
     let x = X_POSITIONS[entity.type] ?? 300;
-    if (entity.type === 'llc' && llcs.length > 2) {
-      x = 300 + idx * llcXStep;
+    let y = (idx - (total - 1) / 2) * 110 + 200;
+
+    if (entity.type === 'llc' && hasMhub) {
+      // All LLCs at same x; fan vertically with 100px spacing
+      x = 300;
+      y = (idx - (llcs.length - 1) / 2) * 100 + 200;
+    } else if (entity.type === 'llc' && llcs.length > 2) {
+      x = 300 + idx * 280;
+    }
+
+    if (entity.type === 'mailing_address') {
+      // Center the hub vertically in the LLC fan
+      y = 200;
+    }
+
+    if (entity.type === 'human') {
+      // Humans go furthest right
+      x = hasMhub ? 950 : 900;
     }
 
     const isHighRisk =
@@ -69,7 +92,7 @@ function buildNodes(entities: Entity[]): Node[] {
 
     return {
       id: entity.id,
-      position: { x, y: yBase },
+      position: { x, y },
       data: { label: entity.name, entity },
       style: {
         background: style.bg,

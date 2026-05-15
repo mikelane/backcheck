@@ -1,4 +1,4 @@
-export type EntityType = 'property' | 'llc' | 'human' | 'registered_agent';
+export type EntityType = 'property' | 'llc' | 'human' | 'registered_agent' | 'mailing_address';
 
 export interface Entity {
   id: string;
