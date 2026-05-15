@@ -4,21 +4,9 @@ import { CheckCircle2, Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 const STAGES = [
-  {
-    label: 'Querying Multnomah County Assessor',
-    source: 'MULTCO.US / RECORDS',
-    delay: 1000,
-  },
-  {
-    label: 'Cross-referencing mailing addresses',
-    source: 'MULTCO OPEN DATA / PARCELS',
-    delay: 2000,
-  },
-  {
-    label: 'Resolving entity matches across LLCs',
-    source: 'CROSS-REFERENCING REGISTERED AGENTS',
-    delay: 3000,
-  },
+  { label: 'Querying the Multnomah County assessor', delay: 1000 },
+  { label: 'Cross-referencing mailing addresses', delay: 2000 },
+  { label: 'Resolving entity matches across LLCs', delay: 3000 },
 ];
 
 interface LoadingSequenceProps {
@@ -36,59 +24,34 @@ export default function LoadingSequence({ address }: LoadingSequenceProps) {
   }, []);
 
   return (
-    <div className="max-w-xl mx-auto mt-12 border-t border-b border-zinc-800">
-      {/* Header strip */}
-      <div className="py-3 border-b border-zinc-800">
-        <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-zinc-500">
-          INQUIRY IN PROGRESS · {address}
-        </span>
-      </div>
-
-      {/* Stage rows */}
-      {STAGES.map((stage, i) => {
-        const done = completedCount > i;
-        const active = completedCount === i;
-
-        return (
-          <div
-            key={stage.label}
-            className={`flex items-start gap-4 py-4 border-b border-zinc-800 last:border-b-0 transition-opacity duration-300 ${
-              i > completedCount ? 'opacity-40' : 'opacity-100'
-            }`}
-          >
-            {/* Stage number */}
-            <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-zinc-500 flex-shrink-0 pt-0.5">
-              STAGE 0{i + 1} / 03
-            </span>
-
-            {/* Stage content */}
-            <div className="flex-1 min-w-0">
-              <p
-                className={`font-display italic text-lg leading-tight ${
-                  done ? 'text-zinc-300' : active ? 'text-zinc-100' : 'text-zinc-500'
+    <div className="max-w-xl mt-8">
+      <p className="text-zinc-500 text-sm mb-6">
+        Looking up{' '}
+        <span className="font-mono text-zinc-300">{address}</span>
+      </p>
+      <ul className="space-y-3">
+        {STAGES.map((s, i) => {
+          const done = completedCount > i;
+          return (
+            <li key={i} className="flex items-center gap-3">
+              <span className="w-5 h-5 flex items-center justify-center">
+                {done ? (
+                  <CheckCircle2 className="w-5 h-5 text-emerald-400 check-pop" />
+                ) : (
+                  <Loader2 className="w-4 h-4 text-zinc-500 animate-spin" />
+                )}
+              </span>
+              <span
+                className={`text-base transition-colors ${
+                  done ? 'text-zinc-300' : 'text-zinc-500'
                 }`}
               >
-                {stage.label}
-              </p>
-              <p className="font-mono text-[11px] text-zinc-500 uppercase tracking-wide mt-0.5">
-                {stage.source}
-              </p>
-            </div>
-
-            {/* Status icon */}
-            <div className="flex-shrink-0 pt-1">
-              {done ? (
-                <CheckCircle2 size={18} className="text-emerald-400 check-pop" />
-              ) : (
-                <Loader2
-                  size={18}
-                  className={`text-zinc-500 ${active ? 'animate-spin text-orange-400' : ''}`}
-                />
-              )}
-            </div>
-          </div>
-        );
-      })}
+                {s.label}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }

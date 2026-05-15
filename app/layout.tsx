@@ -1,26 +1,11 @@
 import type { Metadata } from 'next';
-import { Fraunces, IBM_Plex_Sans, IBM_Plex_Mono } from 'next/font/google';
+import { Geist_Mono } from 'next/font/google';
 import './globals.css';
 
-const fraunces = Fraunces({
+const geistMono = Geist_Mono({
   subsets: ['latin'],
-  axes: ['opsz', 'SOFT', 'WONK'],
   display: 'swap',
-  variable: '--font-display',
-});
-
-const ibmPlexSans = IBM_Plex_Sans({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  display: 'swap',
-  variable: '--font-sans',
-});
-
-const ibmPlexMono = IBM_Plex_Mono({
-  subsets: ['latin'],
-  weight: ['400', '500', '600'],
-  display: 'swap',
-  variable: '--font-mono',
+  variable: '--font-geist-mono',
 });
 
 export const metadata: Metadata = {
@@ -35,11 +20,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="en"
-      className={`dark ${fraunces.variable} ${ibmPlexSans.variable} ${ibmPlexMono.variable}`}
-    >
-      <body className="font-sans bg-zinc-950 text-zinc-100 antialiased">{children}</body>
+    <html lang="en" className={`dark ${geistMono.variable}`}>
+      <head>
+        <link rel="preconnect" href="https://api.fontshare.com" />
+        <link
+          href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,500,400,300&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body className="bg-zinc-950 text-zinc-100 antialiased font-sans overflow-x-hidden">
+        <main className="overflow-x-hidden w-full max-w-full">{children}</main>
+      </body>
     </html>
   );
 }

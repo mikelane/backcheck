@@ -1,6 +1,5 @@
 'use client';
 
-import { Search } from 'lucide-react';
 import { useState } from 'react';
 
 interface SearchBarProps {
@@ -17,33 +16,36 @@ export default function SearchBar({ onSubmit, defaultValue = '' }: SearchBarProp
     }
   }
 
-  function handleSubmit() {
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
     if (value.trim()) {
       onSubmit(value.trim());
     }
   }
 
   return (
-    <div className="relative w-full max-w-2xl mx-auto border-b-2 border-zinc-800 focus-within:border-orange-500/60 transition-colors">
-      <Search
-        className="absolute left-0 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none"
-        size={18}
-      />
+    <form
+      className="relative flex items-stretch bg-zinc-900/60 backdrop-blur border border-zinc-800 hover:border-zinc-700 focus-within:border-orange-500/60 transition-colors rounded-2xl overflow-hidden w-full"
+      onSubmit={handleSubmit}
+    >
       <input
         type="text"
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="TRY: 4150 N WILLIAMS AVE"
-        className="w-full bg-transparent pl-8 pr-36 py-5 font-mono text-lg text-zinc-100 placeholder:text-zinc-600 focus:outline-none uppercase tracking-wide"
+        placeholder="Try 4150 N Williams Ave"
+        className="flex-1 bg-transparent px-6 py-6 text-2xl font-sans font-medium text-zinc-100 placeholder:text-zinc-600 placeholder:font-normal focus:outline-none"
       />
       <button
-        onClick={handleSubmit}
+        type="submit"
         disabled={!value.trim()}
-        className="absolute right-2 top-1/2 -translate-y-1/2 font-mono text-[11px] tracking-[0.22em] uppercase px-4 py-2 bg-zinc-100 text-zinc-900 hover:bg-orange-500 hover:text-zinc-950 disabled:bg-zinc-700 disabled:text-zinc-500 disabled:cursor-not-allowed transition-colors"
+        className="m-2 px-6 py-3 rounded-xl bg-zinc-100 text-zinc-950 font-medium text-base hover:bg-orange-500 hover:text-zinc-950 disabled:bg-zinc-700 disabled:text-zinc-500 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
       >
-        RUN INQUIRY ↳
+        Look up
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
+          <path d="M5 12h14M13 5l7 7-7 7"/>
+        </svg>
       </button>
-    </div>
+    </form>
   );
 }

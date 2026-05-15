@@ -3,13 +3,14 @@
 @tailwind utilities;
 
 :root {
-  --paper-tint: linear-gradient(180deg, rgba(120, 53, 15, 0.03) 0%, rgba(0, 0, 0, 0) 35%);
   --hairline: rgb(39 39 42); /* zinc-800 */
 }
 
 body {
   background-color: #09090b;
-  background-image: var(--paper-tint);
+  background-image:
+    radial-gradient(ellipse 80% 60% at 50% 100%, rgba(249, 115, 22, 0.10), transparent 60%),
+    radial-gradient(ellipse 50% 40% at 0% 0%, rgba(168, 85, 247, 0.06), transparent 60%);
   background-attachment: fixed;
 }
 
@@ -28,37 +29,41 @@ body::before {
 /* Make sure children render above the grain */
 body > * { position: relative; z-index: 2; }
 
-/* Parcel-grid pattern — used in hero only */
-.parcel-grid {
-  background-image:
-    linear-gradient(to right, rgba(244, 244, 245, 0.04) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(244, 244, 245, 0.04) 1px, transparent 1px);
-  background-size: 56px 56px;
-  background-position: -1px -1px;
+/* Hairline rule used between sections */
+.hairline-rule {
+  border-color: var(--hairline);
 }
 
-.font-display-wonk {
-  font-variation-settings: "opsz" 144, "SOFT" 30, "WONK" 1;
+/* Orange hairline draw-in animation */
+@keyframes line-draw {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+.line-draw {
+  transform-origin: left;
+  animation: line-draw 1.6s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards;
+  transform: scaleX(0);
+}
+
+/* LLC marquee */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.marquee-track {
+  animation: marquee 60s linear infinite;
+}
+
+/* Fade mask for marquee edges */
+.mask-fade {
+  -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
 }
 
 /* Character-shuffle name reveal — used on graph node names */
 @keyframes shuffle-flicker {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.7; }
-}
-
-/* Hairline rule used between sections */
-.hairline-rule {
-  border-color: var(--hairline);
-}
-
-/* Report header: subtle inset bottom shadow for paper-layered feel */
-.report-band {
-  background:
-    linear-gradient(180deg, rgb(24 24 27) 0%, rgb(15 15 17) 100%);
-  box-shadow:
-    inset 0 -1px 0 var(--hairline),
-    inset 0 1px 0 var(--hairline);
 }
 
 /* React Flow dark theme overrides */
@@ -100,26 +105,6 @@ body > * { position: relative; z-index: 2; }
 
 .react-flow__attribution {
   display: none;
-}
-
-/* Reveal pulse animation for entity nodes */
-@keyframes node-reveal {
-  0% {
-    opacity: 0;
-    transform: scale(0.85);
-  }
-  60% {
-    opacity: 1;
-    transform: scale(1.03);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.node-reveal {
-  animation: node-reveal 0.5s ease-out forwards;
 }
 
 /* Human node glow */

@@ -13,33 +13,31 @@ function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-const RECENT_INQUIRIES = [
-  { case: '#PDX-00482', street: '4150 N WILLIAMS AVE', ago: '2m ago' },
-  { case: '#PDX-00481', street: '3637 NE 122ND AVE', ago: '9m ago' },
-  { case: '#PDX-00480', street: '12424 NE SANDY BLVD', ago: '14m ago' },
-  { case: '#PDX-00479', street: '823 NW 23RD AVE', ago: '27m ago' },
-  { case: '#PDX-00478', street: '4415 SW CARL PL', ago: '41m ago' },
-];
-
-const HOW_WE_WORK = [
-  {
-    num: '01',
-    statement: 'Query the parcel.',
-    explanation:
-      "We hit Multnomah County's open-data Feature Service for the property record.",
-  },
-  {
-    num: '02',
-    statement: 'Resolve the chain.',
-    explanation:
-      'We pull every property owned by that LLC and every LLC sharing its mailing address.',
-  },
-  {
-    num: '03',
-    statement: 'Surface the human.',
-    explanation:
-      'Personal names appearing in NAME, NAME2, or ATTN-line fields are extracted with a conservative regex and shown explicitly.',
-  },
+const LLC_NAMES = [
+  'RUJAX I LLC',
+  'RUJAX II',
+  'RUJAX III LLC',
+  'RUJAX IV LLC',
+  'RUJAX V LLC',
+  'RUBEN J MENASHE INC',
+  'RIVERWOOD BUILDING LLC',
+  'STONEHURST APARTMENTS LLC',
+  'GARDEN CREST APARTMENTS LLC',
+  'MENASHE,JACK R II & MENASHE,MADELEINE K',
+  'FIFTH AVE HOLDINGS LLC',
+  'PDX URBAN PROPERTIES LLC',
+  'ALBERTA HOUSE LLC',
+  'TWENTY-THIRD AVE PROPERTIES LLC',
+  'CASCADE REAL ESTATE TRUST',
+  'WHEELER FAMILY HOLDINGS LLC',
+  'BURNSIDE 23 LLC',
+  'HAWTHORNE GROVE PROPERTIES',
+  'BELMONT HOLDINGS LLC',
+  'DIVISION STREET PARTNERS LLC',
+  'SELLWOOD PROPERTY GROUP LLC',
+  'NORTH WILLIAMS VENTURE LLC',
+  'CONCORDIA RESIDENTIAL LLC',
+  'LADD AVENUE PROPERTIES LLC',
 ];
 
 export default function Home() {
@@ -69,168 +67,136 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen flex flex-col">
-      {/* Masthead bar */}
-      <header className="sticky top-0 z-50 h-12 bg-zinc-900/60 backdrop-blur border-b border-zinc-800">
-        <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
-          <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-zinc-400">
-            CIVIC RECORDS //{' '}
-            <span className="text-zinc-100">BACKCHECK</span>
-          </span>
-          <span className="font-mono text-[10px] tracking-wide text-zinc-500">
-            v0.1 · pdx
-          </span>
-          <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-zinc-500">
-            Source: Multnomah County Open Data
-          </span>
-        </div>
-      </header>
-
+    <div className="relative w-full">
       {/* Hero */}
-      <section className="relative parcel-grid border-b border-zinc-800">
-        <div className="max-w-7xl mx-auto px-6 py-20 grid lg:grid-cols-12 gap-8">
-          {/* Left: headline */}
-          <div className="lg:col-span-7">
-            <p className="font-mono text-[11px] tracking-[0.22em] uppercase text-orange-400/80 mb-6">
-              ↳ A Portland rental transparency tool
-            </p>
-            <h1>
-              <span className="block font-sans text-5xl sm:text-6xl font-light tracking-tight text-zinc-400 leading-[0.95]">
-                Renters get
-              </span>
-              <span className="block font-display font-display-wonk text-6xl sm:text-7xl italic text-zinc-100 leading-[0.95]">
-                background-checked.
-              </span>
-              <span className="block font-display font-display-wonk text-6xl sm:text-7xl font-semibold text-zinc-100 leading-[0.95]">
-                Time to check back.
-              </span>
-            </h1>
-            <div className="h-px w-16 bg-orange-500 mt-6" />
-            <p className="font-sans text-base text-zinc-400 max-w-md leading-relaxed mt-6">
-              Type a Portland address. We trace the parcel through the Multnomah County
-              Assessor and surface the LLCs, mailing-address clusters, and human names
-              behind the lease you&apos;re about to sign.
-            </p>
-          </div>
+      <section className="relative px-6 pt-24 pb-16">
+        <div className="max-w-6xl mx-auto">
+          {/* Brand mark */}
+          <a
+            href="/"
+            className="inline-flex items-center gap-2 text-sm font-medium tracking-tight text-zinc-100 mb-20"
+          >
+            backcheck
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-orange-500" />
+          </a>
 
-          {/* Right: recent inquiries ledger */}
-          <div className="lg:col-span-5">
-            <div className="border border-zinc-800 p-5 bg-zinc-900/40">
-              <p className="font-mono text-[10px] tracking-[0.22em] uppercase text-zinc-500 mb-4">
-                RECENT INQUIRIES · 24H
-              </p>
-              <div className="divide-y divide-zinc-800">
-                {RECENT_INQUIRIES.map((row) => (
-                  <div key={row.case} className="flex items-center gap-3 py-2">
-                    <span className="font-mono text-[10px] text-zinc-600 flex-shrink-0">
-                      {row.case}
-                    </span>
-                    <span className="font-mono text-xs text-zinc-300 flex-1 truncate">
-                      {row.street}
-                    </span>
-                    <span className="font-mono text-[10px] text-zinc-500 flex-shrink-0">
-                      · {row.ago}
-                    </span>
-                  </div>
-                ))}
-              </div>
-              <p className="font-mono text-[10px] text-zinc-600 text-right mt-3">
-                ↻ public records · no accounts
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+          {/* Headline */}
+          <h1 className="font-sans font-bold text-zinc-100 leading-[0.9] tracking-tight text-[clamp(3rem,7vw,6rem)] lg:max-w-5xl">
+            Background-check
+            <span className="inline-flex items-center align-middle mx-3 my-2 px-3 py-1.5 rounded-full bg-zinc-900 border border-zinc-800">
+              <svg width="84" height="22" viewBox="0 0 84 22" fill="none" aria-hidden>
+                <rect x="2" y="6" width="10" height="10" rx="2" fill="#3b82f6" />
+                <line x1="13" y1="11" x2="32" y2="11" stroke="#a1a1aa" strokeWidth="1.5" strokeDasharray="2 2" />
+                <rect x="33" y="6" width="10" height="10" rx="2" fill="#a855f7" />
+                <line x1="44" y1="11" x2="63" y2="11" stroke="#a1a1aa" strokeWidth="1.5" strokeDasharray="2 2" />
+                <circle cx="71" cy="11" r="6" fill="#f97316" />
+              </svg>
+            </span>
+            your landlord.
+          </h1>
 
-      {/* Search section */}
-      <section className="max-w-3xl mx-auto w-full px-6 py-16">
-        <p className="font-mono text-[10px] tracking-[0.22em] uppercase text-zinc-500 mb-3">
-          FILE A QUERY
-        </p>
-        <SearchBar onSubmit={runLookup} />
+          {/* Orange hairline */}
+          <div className="line-draw mt-8 h-px w-32 bg-gradient-to-r from-orange-500 to-transparent" />
 
-        {/* Filed cases */}
-        <div className="mt-8">
-          <p className="font-mono text-[10px] tracking-[0.22em] uppercase text-zinc-500 mb-3">
-            FILED CASES
+          {/* Sub-paragraph */}
+          <p className="max-w-xl mt-6 text-zinc-400 text-lg leading-relaxed font-normal">
+            Type any Multnomah County address. We trace the parcel through public records — every
+            LLC, every shared mailing address, every human name we can surface from the
+            assessor&apos;s own files.
           </p>
-          <div className="grid sm:grid-cols-3 gap-3">
-            {DEMO_ADDRESSES.map((demo, idx) => (
+
+          {/* Search bar */}
+          <div className="mt-12">
+            <SearchBar onSubmit={runLookup} />
+          </div>
+
+          {/* Demo addresses — horizontal accordion */}
+          <p className="text-zinc-500 text-xs mt-12 mb-3">Or start with a known case:</p>
+          <div className="flex gap-2 h-28 group/cases">
+            {DEMO_ADDRESSES.map((demo) => (
               <button
                 key={demo.full}
                 onClick={() => runLookup(demo.full)}
-                className="group relative text-left p-4 bg-zinc-900/40 border border-zinc-800 hover:border-zinc-600 transition-colors"
+                className="
+                  flex-1 hover:flex-[3] focus:flex-[3]
+                  relative overflow-hidden text-left
+                  bg-zinc-900/40 border border-zinc-800 hover:border-orange-500/40 focus:border-orange-500/60
+                  rounded-xl px-5 py-4
+                  transition-all duration-500 ease-out
+                  group/case
+                "
               >
-                <span className="absolute left-0 top-0 bottom-0 w-0.5 bg-orange-500 scale-y-0 group-hover:scale-y-100 transition-transform origin-top" />
-                <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-zinc-500">
-                  CASE #PDX-{(idx + 481).toString().padStart(5, '0')}
-                </span>
-                <span className="block mt-2 font-display text-lg text-zinc-100 leading-tight">
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-orange-500 scale-y-0 group-hover/case:scale-y-100 group-focus/case:scale-y-100 transition-transform origin-top duration-500" />
+                <p className="text-zinc-100 font-medium text-sm group-hover/case:text-base transition-all">
                   {demo.label}
-                </span>
-                <span className="block mt-1 font-mono text-[11px] text-zinc-500 uppercase tracking-wide">
+                </p>
+                <p className="text-zinc-500 text-xs mt-1 font-mono opacity-0 group-hover/case:opacity-100 group-focus/case:opacity-100 transition-opacity duration-300 overflow-hidden whitespace-nowrap text-ellipsis">
                   {demo.full.replace(', Portland, OR', '')}
-                </span>
-                <span className="block mt-3 font-sans text-xs text-zinc-400 leading-relaxed">
+                </p>
+                <p className="text-zinc-400 text-xs mt-2 leading-snug opacity-0 group-hover/case:opacity-100 group-focus/case:opacity-100 transition-opacity duration-500 delay-75">
                   {demo.subtitle}
-                </span>
+                </p>
               </button>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Results area */}
-      <section className="flex-1 max-w-5xl mx-auto w-full px-6 pb-16">
+      {/* LLC marquee — full bleed */}
+      <div className="relative w-full overflow-hidden border-y border-zinc-900 py-5 mask-fade mt-20">
+        <div className="marquee-track flex gap-12 whitespace-nowrap">
+          {[...LLC_NAMES, ...LLC_NAMES].map((name, i) => (
+            <span key={i} className="font-mono text-xs text-zinc-500 tracking-wide">
+              {name}
+            </span>
+          ))}
+        </div>
+        <p className="absolute right-4 top-1/2 -translate-y-1/2 font-mono text-[10px] text-zinc-600 bg-zinc-950 pl-4">
+          in the database
+        </p>
+      </div>
+
+      {/* State-dependent area */}
+      <div className="max-w-6xl mx-auto px-6">
         {state === 'idle' && (
-          <div className="max-w-3xl mx-auto py-20">
-            <div className="space-y-10">
-              {HOW_WE_WORK.map((item) => (
-                <div key={item.num}>
-                  <p className="font-mono text-sm text-zinc-600 tracking-wider">
-                    {item.num} /
-                  </p>
-                  <p className="font-display italic text-2xl text-zinc-100 mt-1">
-                    {item.statement}
-                  </p>
-                  <p className="font-sans text-sm text-zinc-400 leading-relaxed mt-2 max-w-prose">
-                    {item.explanation}
-                  </p>
-                </div>
-              ))}
-            </div>
+          <div className="py-24 max-w-2xl">
+            <p className="text-zinc-300 text-2xl font-light leading-relaxed">
+              Renters get background-checked, credit-checked, eviction-screened. The landlord
+              behind the LLC, you have to take on faith. We flip that.
+            </p>
+            <p className="text-zinc-500 text-sm mt-6 max-w-md">
+              We do not characterize landlords. We aggregate already-public records, in 30 seconds,
+              before you sign a lease that locks you in for a year.
+            </p>
           </div>
         )}
 
-        {state === 'loading' && (
-          <LoadingSequence address={activeAddress} />
-        )}
+        {state === 'loading' && <LoadingSequence address={activeAddress} />}
 
         {state === 'done' && result && <ResultsPanel result={result} />}
 
         {state === 'error' && (
-          <div className="border border-zinc-800 py-20 text-center mt-8">
-            <p className="font-display italic text-2xl text-red-400">
-              Something went wrong.
-            </p>
-            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-600 mt-3">
-              Please try again.
-            </p>
-          </div>
+          <p className="text-orange-400 text-sm mt-8">
+            Something went wrong — please try again.
+          </p>
         )}
-      </section>
+      </div>
 
       {/* Footer */}
-      <footer className="border-t border-zinc-800 mt-24 py-10">
-        <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
-          <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-zinc-500">
-            BACKCHECK · OPEN RECORDS, NO ACCOUNTS, NO TRACKING.
-          </span>
-          <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-zinc-500">
-            RECORDS VIA MULTNOMAH COUNTY OPEN DATA
-          </span>
+      <footer className="max-w-6xl mx-auto px-6 py-12 mt-16 border-t border-zinc-900">
+        <div className="flex flex-wrap justify-between items-baseline gap-4 text-xs text-zinc-500 font-normal leading-relaxed">
+          <p className="max-w-md">
+            Backcheck aggregates public records from the Multnomah County Open Data ArcGIS Feature
+            Service. We do not store searches, accounts, or personal information.
+          </p>
+          <a
+            href="https://gis-multco.opendata.arcgis.com"
+            className="text-zinc-400 hover:text-orange-400 transition-colors"
+          >
+            multco open data &rarr;
+          </a>
         </div>
       </footer>
-    </main>
+    </div>
   );
 }

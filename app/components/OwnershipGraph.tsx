@@ -9,7 +9,8 @@ import ReactFlow, {
   type NodeProps,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
+import gsap from 'gsap';
 import NameShuffle from './NameShuffle';
 import type { Entity, OwnershipEdge } from '@/lib/types';
 
@@ -22,11 +23,11 @@ const X_POSITIONS: Record<string, number> = {
 };
 
 const NODE_ACCENT: Record<string, { border: string; text: string; label: string }> = {
-  property: { border: 'border-l-blue-500', text: 'text-blue-500', label: 'PROPERTY' },
-  llc: { border: 'border-l-purple-500', text: 'text-purple-500', label: 'LLC' },
-  human: { border: 'border-l-orange-500', text: 'text-orange-500', label: 'INDIVIDUAL' },
-  registered_agent: { border: 'border-l-zinc-500', text: 'text-zinc-500', label: 'REG. AGENT' },
-  mailing_address: { border: 'border-l-cyan-500', text: 'text-cyan-500', label: 'MAILING ADDR' },
+  property: { border: 'border-l-blue-500', text: 'text-blue-400', label: 'property' },
+  llc: { border: 'border-l-purple-500', text: 'text-purple-400', label: 'LLC' },
+  human: { border: 'border-l-orange-500', text: 'text-orange-400', label: 'individual' },
+  registered_agent: { border: 'border-l-zinc-500', text: 'text-zinc-400', label: 'reg. agent' },
+  mailing_address: { border: 'border-l-cyan-500', text: 'text-cyan-400', label: 'mailing addr' },
 };
 
 interface NodeData {
@@ -37,30 +38,22 @@ interface NodeData {
 
 function DossierNode({ data }: NodeProps<NodeData>) {
   const accent = NODE_ACCENT[data.entity.type] ?? NODE_ACCENT.llc;
-  const isHuman = data.entity.type === 'human';
-  const isHighRisk = isHuman && (data.entity.cross_property_count ?? 0) >= 5;
-  const shortId = data.entity.id.slice(0, 6).toUpperCase();
+  const isHighRisk =
+    data.entity.type === 'human' && (data.entity.cross_property_count ?? 0) >= 5;
 
   return (
     <div
-      className={`min-w-[180px] bg-zinc-900 border border-zinc-800 node-reveal ${
+      className={`min-w-[180px] bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden ${
         isHighRisk ? 'ring-1 ring-orange-500/30 human-node-glow' : ''
       }`}
     >
-      <div className={`border-l-2 ${accent.border} px-3 py-2`}>
-        <div className="flex items-baseline gap-2">
-          <span className={`font-mono text-[9px] tracking-[0.22em] uppercase ${accent.text}`}>
-            {accent.label}
-          </span>
-          <span className="font-mono text-[9px] text-zinc-600 ml-auto">{shortId}</span>
-        </div>
-        <div className="font-display text-sm text-zinc-100 leading-tight mt-1 tracking-tight">
+      <div className={`border-l-2 ${accent.border} px-4 py-3`}>
+        <p className={`text-[10px] font-medium ${accent.text} mb-1`}>{accent.label}</p>
+        <div className="font-sans text-sm text-zinc-100 leading-tight tracking-tight">
           <NameShuffle name={data.label} />
         </div>
         {data.subline && (
-          <div className="font-mono text-[10px] text-zinc-500 mt-1 uppercase tracking-wide">
-            {data.subline}
-          </div>
+          <p className="font-mono text-[10px] text-zinc-500 mt-1">{data.subline}</p>
         )}
       </div>
     </div>
@@ -103,7 +96,7 @@ function buildNodes(entities: Entity[]): Node<NodeData>[] {
 
     const subline =
       entity.cross_property_count !== undefined && entity.cross_property_count >= 2
-        ? `OWNS · ${entity.cross_property_count} PROPS`
+        ? `Owns ${entity.cross_property_count} properties`
         : undefined;
 
     return {
@@ -126,7 +119,7 @@ function buildEdges(edges: OwnershipEdge[]): Edge[] {
     labelStyle: {
       fill: '#71717a',
       fontSize: 10,
-      fontFamily: 'var(--font-mono, ui-monospace, monospace)',
+      fontFamily: 'var(--font-geist-mono, ui-monospace, monospace)',
     },
     labelBgStyle: { fill: '#09090b', fillOpacity: 0.9 },
     labelBgPadding: [4, 6] as [number, number],
@@ -143,8 +136,21 @@ export default function OwnershipGraph({ entities, edges }: OwnershipGraphProps)
   const nodes = useMemo(() => buildNodes(entities), [entities]);
   const rfEdges = useMemo(() => buildEdges(edges), [edges]);
 
+  useEffect(() => {
+    gsap.fromTo(
+      '.react-flow__node',
+      { opacity: 0, scale: 0.85 },
+      { opacity: 1, scale: 1, duration: 0.5, stagger: 0.08, ease: 'power3.out' }
+    );
+    gsap.fromTo(
+      '.react-flow__edge',
+      { opacity: 0 },
+      { opacity: 1, duration: 0.4, delay: 0.6, stagger: 0.04, ease: 'power2.out' }
+    );
+  }, [nodes]);
+
   return (
-    <div className="w-full h-[420px] overflow-hidden border border-zinc-800">
+    <div className="w-full h-[420px] overflow-hidden border border-zinc-900 rounded-xl bg-zinc-950/50">
       <ReactFlow
         nodes={nodes}
         edges={rfEdges}
@@ -156,7 +162,7 @@ export default function OwnershipGraph({ entities, edges }: OwnershipGraphProps)
         elementsSelectable={false}
         proOptions={{ hideAttribution: true }}
       >
-        <Background variant={BackgroundVariant.Dots} gap={28} size={1} color="#27272a" />
+        <Background variant={BackgroundVariant.Dots} gap={28} size={1} color="#18181b" />
         <Controls showInteractive={false} />
       </ReactFlow>
     </div>
